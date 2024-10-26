@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Image Processing</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body style="background-image: url('{{ url_for('static', filename='vvv.jpg') }}'); background-color: rgb(255, 255, 255); background-size: cover;">
+    <h1>Upload an Image for Processing</h1>
+    
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <label for="file-upload" class="custom-file-upload">
+            Choose File
+        </label>
+        <input id="file-upload" type="file" name="image" accept="image/*" required>
+        <span id="file-name">No file chosen</span>
+        <button type="submit">Upload</button>
+        
+        
+    </form>
+    
+
+    {% if filename %}
+    <h2>Uploaded Image:</h2>
+    <img src="{{ url_for('send_image', filename=filename) }}" alt="Uploaded Image">
+
+    <div class="button">
+        <form action="{{ url_for('compress', filename=filename) }}" method="POST">
+            <button type="submit">Compress Image</button>
+        </form>
+        <form action="{{ url_for('cartoon', filename=filename) }}" method="POST">
+            <button type="submit">Convert to Cartoon</button>
+        </form>
+        <form action="{{ url_for('remove_background', filename=filename) }}" method="POST">
+            <button type="submit">Remove Background</button>
+        </form>        
+        <form action="{{ url_for('blur', filename=filename) }}" method="POST">
+            <button type="submit">Apply Blur</button>
+        </form>
+    
+         <form action="{{ url_for('black_and_white', filename=filename) }}" method="POST">
+            <button type="submit">Convert to Black and White</button>
+        </form>
+
+        <form action="{{ url_for('negative', filename=filename) }}" method="POST">
+            <button type="submit">Apply Negative</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Adjusted download section to single button -->
+{% for effect, effect_filename in effects.items() %}
+<div class="result">
+    <h3>{{ effect }}</h3>
+    <img src="{{ url_for('send_image', filename=effect_filename) }}" alt="{{ effect }}">
+    <form action="{{ url_for('download_image', filename=effect_filename, format='jpeg') }}" method="POST">
+        <button type="submit">Download Image</button>
+    </form>
+</div>
+{% endfor %}
+
+<style>
+    .button, .result form {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+</style>
+
+
+    <div id="download-msg" class="success-message">Download Successful!</div>
+
+
+<script>
+    document.getElementById('file-upload').addEventListener('change', function() {
+        var fileName = this.files[0].name;
+        document.getElementById('file-name').textContent = fileName;
+    });
+
+    function showDownloadMessage() {
+        const msg = document.getElementById("download-msg");
+        msg.style.display = "block";
+        setTimeout(() => { msg.style.display = "none"; }, 500);
+    }
+</script>
+</body>
+</html>
